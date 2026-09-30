@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 
 import { colors, spacing } from '@/constants/theme';
+import { useAppState } from '@/context/AppStateContext';
 import { mockMeals, mockWeek } from '@/features/plan/mock-data';
 import { PlannedMeal, WeekDay } from '@/features/plan/types';
 
@@ -65,7 +66,7 @@ function DayChip({ day, selected, onPress }: { day: WeekDay; selected: boolean; 
   );
 }
 
-function MealCard({ meal }: { meal: PlannedMeal }) {
+function MealCard({ meal, onAddMissing }: { meal: PlannedMeal; onAddMissing: () => void }) {
   const hasMissingIngredients = meal.availability === 'missing';
 
   return (
@@ -93,8 +94,11 @@ function MealCard({ meal }: { meal: PlannedMeal }) {
             </View>
           ))}
           <Text style={styles.explanation}>
-            Estos faltantes pueden sumarse a Compras desde el detalle de la comida.
+            Casa compara este plan con el inventario. “Queda poco” no se suma automáticamente.
           </Text>
+          <Pressable accessibilityRole="button" style={styles.addMissingButton} onPress={onAddMissing}>
+            <Text style={styles.addMissingText}>Agregar faltantes a Compras</Text>
+          </Pressable>
         </View>
       )}
     </View>
@@ -102,6 +106,7 @@ function MealCard({ meal }: { meal: PlannedMeal }) {
 }
 
 export default function PlanScreen() {
+  const { addMissingIngredients } = useAppState();
   const [selectedDayId, setSelectedDayId] = useState('wed');
   const selectedDay = mockWeek.find((day) => day.id === selectedDayId) ?? mockWeek[0];
 
@@ -147,14 +152,14 @@ export default function PlanScreen() {
 
         <View style={styles.sectionHeader}>
           <View>
-            <Text style={styles.sectionTitle}>Comidas del miércoles</Text>
+             <Text style={styles.sectionTitle}>Comidas del {selectedDay.isToday ? 'miércoles' : selectedDay.shortName.toLowerCase()}</Text>
             <Text style={styles.sectionSubtitle}>{selectedDay.plannedMeals} momentos planificados</Text>
           </View>
           <Text style={styles.reorderText}>Ver semana</Text>
         </View>
 
         {mockMeals.map((meal) => (
-          <MealCard key={meal.id} meal={meal} />
+           <MealCard key={meal.id} meal={meal} onAddMissing={addMissingIngredients} />
         ))}
 
         <View style={styles.tipCard}>
@@ -426,6 +431,19 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: 12,
     lineHeight: 18,
+  },
+  addMissingButton: {
+    alignItems: 'center',
+    backgroundColor: colors.primary,
+    borderRadius: 10,
+    minHeight: 44,
+    justifyContent: 'center',
+    marginTop: spacing.xs,
+  },
+  addMissingText: {
+    color: colors.surface,
+    fontSize: 13,
+    fontWeight: '700',
   },
   tipCard: {
     alignItems: 'flex-start',

@@ -11,6 +11,9 @@ export const colors = {
   successText: '#315A42',
   warningBackground: '#F5E7B5',
   warningText: '#6F5714',
+  dangerBackground: '#F4D8D2',
+  dangerText: '#8A342B',
+  surfaceStrong: '#EFE6E4',
   border: '#DDE2DC',
 } as const;
 
@@ -20,4 +23,5 @@ export const spacing = {
   md: 16,
   lg: 24,
   xl: 32,
+  xxl: 48,
 } as const;
